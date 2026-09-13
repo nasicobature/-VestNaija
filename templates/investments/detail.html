@@ -5,8 +5,12 @@
   <div class="page-head">
     <div><p class="eyebrow">{{ asset.market }}{% if asset.sector %} / {{ asset.get_sector_display }}{% endif %} / {{ asset.get_status_display }}</p><h1>{{ asset.name }}</h1></div>
     <div class="quick-actions">
+      {% if asset.status == "not_listed" %}
+      <span class="tag tag-not-listed">Not Listed on NGX</span>
+      {% else %}
       <a class="btn primary" href="{% url 'order_ticket' asset.symbol 'buy' %}">Buy</a>
       <a class="btn secondary" href="{% url 'order_ticket' asset.symbol 'sell' %}">Sell</a>
+      {% endif %}
     </div>
   </div>
   <div class="metric-grid">
@@ -22,13 +26,23 @@
       <p class="notice">This does not represent an offer to buy or sell securities.</p>
     </section>
     <section class="panel">
-      <div class="section-title"><h2>IPO Terms</h2><span>{{ asset.status|upper }}</span></div>
+      <div class="section-title"><h2>IPO Terms</h2><span>{{ asset.get_status_display|upper }}</span></div>
       {% if asset.ipo %}
       <div class="status-grid">
-        <span>Offer price</span><strong>{{ asset.ipo.offer_price|naira }}</strong>
-        <span>Minimum subscription</span><strong>{{ asset.ipo.minimum_subscription }}</strong>
-        <span>Window</span><strong>{{ asset.ipo.opens_at|date:"M d, Y"|default:"TBA" }} - {{ asset.ipo.closes_at|date:"M d, Y"|default:"TBA" }}</strong>
+        <span>Price per unit</span><strong>{{ asset.ipo.offer_price|naira }}</strong>
+        <span>Minimum subscription</span><strong>{{ asset.ipo.minimum_subscription }} units</strong>
+        <span>Minimum investment</span><strong>{{ asset.ipo.minimum_investment|naira }}</strong>
+        <span>Window</span>
+        {% if asset.status == "not_listed" %}
+        <strong>Not yet listed &mdash; no subscription window open</strong>
+        {% else %}
+        <strong>{{ asset.ipo.opens_at|date:"M d, Y"|default:"TBA" }} - {{ asset.ipo.closes_at|date:"M d, Y"|default:"TBA" }}</strong>
+        {% endif %}
+        <span>Status</span><strong>{{ asset.ipo.status }}</strong>
       </div>
+      {% if asset.status == "not_listed" %}
+      <p class="notice notice-warning">This company has not filed for listing on the NGX. Pricing shown is indicative only and there is no open subscription window.</p>
+      {% endif %}
       {% else %}
       <p class="empty">No IPO terms attached to this asset.</p>
       {% endif %}

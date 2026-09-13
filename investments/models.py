@@ -5,6 +5,7 @@ class Asset(models.Model):
     class Status(models.TextChoices):
         ACTIVE = "active", "Active"
         IPO_DEMO = "ipo_demo", "IPO / Simulated"
+        NOT_LISTED = "not_listed", "Not Listed"
         DISABLED = "disabled", "Disabled"
 
     class Sector(models.TextChoices):
@@ -55,6 +56,10 @@ class IPO(models.Model):
     closes_at = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=32, default="Simulated subscription")
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def minimum_investment(self):
+        return self.offer_price * self.minimum_subscription
 
     def __str__(self):
         return f"{self.asset.symbol} IPO"

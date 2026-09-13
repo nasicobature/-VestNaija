@@ -13,6 +13,9 @@ from .services import cancel_order, create_order, fee_for
 @login_required
 def order_ticket(request, symbol, side):
     asset = get_object_or_404(Asset, symbol=symbol, is_enabled=True)
+    if asset.status == Asset.Status.NOT_LISTED:
+        messages.error(request, f"{asset.name} is not yet listed on the NGX and cannot be traded.")
+        return redirect("asset_detail", symbol=asset.symbol)
     holding = request.user.holdings.filter(asset=asset).first()
     initial = {"side": side, "order_type": Order.OrderType.MARKET}
     if request.method == "POST":

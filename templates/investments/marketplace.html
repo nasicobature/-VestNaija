@@ -21,12 +21,18 @@
     <article class="panel asset-card">
       <div class="asset-top"><span>{{ asset.market }}{% if asset.sector %} &middot; {{ asset.get_sector_display }}{% endif %}</span><strong>{{ asset.symbol }}</strong></div>
       <h2>{{ asset.name }}</h2>
+      {% if asset.status == "not_listed" %}<span class="tag tag-not-listed">Not Listed</span>{% elif asset.status == "ipo_demo" %}<span class="tag tag-ipo">IPO Open</span>{% endif %}
       <p>{{ asset.description|truncatewords:24 }}</p>
+      {% if asset.status == "not_listed" and asset.ipo %}
+      <div class="quote-line"><span>Price per unit</span><strong>{{ asset.ipo.offer_price|naira }}</strong></div>
+      <div class="quote-line"><span>Status</span><strong>Not yet listed on NGX</strong></div>
+      {% else %}
       <div class="quote-line"><span>Current price</span><strong>{{ asset.current_price|naira }}</strong></div>
       <div class="quote-line"><span>Change</span><strong class="{% if asset.price_change >= 0 %}positive-text{% else %}negative-text{% endif %}">{{ asset.price_change|naira }}</strong></div>
+      {% endif %}
       <div class="card-actions">
         <a class="btn secondary" href="{% url 'asset_detail' asset.symbol %}">Details</a>
-        <a class="btn primary" href="{% url 'order_ticket' asset.symbol 'buy' %}">Buy</a>
+        {% if asset.status != "not_listed" %}<a class="btn primary" href="{% url 'order_ticket' asset.symbol 'buy' %}">Buy</a>{% endif %}
       </div>
     </article>
     {% empty %}
