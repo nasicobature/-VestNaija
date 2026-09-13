@@ -1,8 +1,10 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from django.urls import reverse
 
-from payments.services import simulate_deposit, simulate_withdrawal
+from payments.services import initiate_deposit, simulate_deposit, simulate_withdrawal
 from portfolio.services import portfolio_summary
 
 from .forms import DepositForm, WithdrawalForm
@@ -17,15 +19,24 @@ def wallet_home(request):
 
 @login_required
 def deposit(request):
+    live_provider = (settings.PAYMENT_PROVIDER or "mock").lower().startswith("flutterwave")
     if request.method == "POST":
         form = DepositForm(request.POST)
         if form.is_valid():
-            simulate_deposit(request.user, form.cleaned_data["amount"])
-            messages.success(request, "Demo deposit completed. No real money moved.")
-            return redirect("wallet")
+            amount = form.cleaned_data["amount"]
+            if live_provider:
+                redirect_url = request.build_absolute_uri(reverse("deposit_callback"))
+                payment = initiate_deposit(request.user, amount, redirect_url=redirect_url)
+                if payment.checkout_url:
+                    return redirect(payment.checkout_url)
+                messages.error(request, "Unable to start payment right now. Please try again.")
+            else:
+                simulate_deposit(request.user, amount)
+                messages.success(request, "Demo deposit completed. No real money moved.")
+                return redirect("wallet")
     else:
         form = DepositForm()
-    return render(request, "wallet/deposit.html", {"form": form})
+    return render(request, "wallet/deposit.html", {"form": form, "live_provider": live_provider})
 
 
 @login_required
