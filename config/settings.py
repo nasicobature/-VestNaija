@@ -161,6 +161,9 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {
@@ -197,6 +200,7 @@ if not DEBUG:
 VESTNAIJA_DEMO_MODE = True
 DEFAULT_BROKER_FEE_RATE = "0.005"
 PAYMENT_PROVIDER = os.getenv("PAYMENT_PROVIDER", "mock")
+KYC_PROVIDER = os.getenv("KYC_PROVIDER", "manual")
 FLW_PUBLIC_KEY = os.getenv("FLW_PUBLIC_KEY", "")
 FLW_SECRET_KEY = os.getenv("FLW_SECRET_KEY", "")
 FLW_ENCRYPTION_KEY = os.getenv("FLW_ENCRYPTION_KEY", "")

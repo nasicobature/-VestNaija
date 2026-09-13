@@ -2,16 +2,15 @@
 {% block content %}
 <section class="auth-shell">
   <form method="post" class="panel form-panel">{% csrf_token %}
-    <p class="eyebrow">Create Demo Account</p><h2>Start with VestNaija</h2>
+    <p class="eyebrow">Create Account</p><h2>Start with VestNaija</h2>
     {{ form.non_field_errors }}
     <label>Full name{{ form.full_name }}</label>
     <label>Email{{ form.email }}</label>
     <label>Phone number{{ form.phone }}</label>
     <label>Password{{ form.password }}<meter id="strength" min="0" max="4" value="0"></meter></label>
     <label>Confirm password{{ form.confirm_password }}</label>
-    <label class="check">{{ form.accepted_terms }} <span>I accept the demo terms and understand this is not real investing.</span></label>
+    <label class="check">{{ form.accepted_terms }} <span>I accept the terms and understand that buying assets in this app is not real securities investing.</span></label>
     <button class="btn primary wide">Create account</button>
-    <p class="muted">Email verification placeholder will be enabled before production launch.</p>
   </form>
 </section>
 {% endblock %}

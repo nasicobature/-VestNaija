@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="auth-shell">
+  <form method="post" enctype="multipart/form-data" class="panel form-panel">{% csrf_token %}
+    <p class="eyebrow">Identity Verification</p><h2>Verify your identity</h2>
+    {% if latest and latest.status == "rejected" %}
+      <p class="notice">Your previous submission was rejected: {{ latest.rejection_reason }}. Please resubmit below.</p>
+    {% endif %}
+    {{ form.non_field_errors }}
+    <label>Full legal name{{ form.full_name }}</label>
+    <label>Date of birth{{ form.date_of_birth }}</label>
+    <label>ID type{{ form.id_type }}</label>
+    <label>ID number (BVN/NIN/etc.){{ form.id_number }}</label>
+    <label>Upload ID document{{ form.id_document }}</label>
+    <label>Selfie photo (optional){{ form.selfie }}</label>
+    <label>Residential address{{ form.address }}</label>
+    <button class="btn primary wide">Submit for review</button>
+    <p class="muted">A staff member reviews submissions by hand. You'll see your status update on your profile once reviewed.</p>
+  </form>
+</section>
+{% endblock %}

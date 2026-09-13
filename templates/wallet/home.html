@@ -2,7 +2,7 @@
 {% load money %}
 {% block content %}
 <section class="dashboard">
-  <div class="page-head"><div><p class="eyebrow">Digital Wallet</p><h1>Your demo cash position</h1></div><div class="quick-actions"><a class="btn primary" href="{% url 'deposit' %}">Deposit</a><a class="btn secondary" href="{% url 'withdraw' %}">Withdraw</a></div></div>
+  <div class="page-head"><div><p class="eyebrow">Digital Wallet</p><h1>Your cash position</h1></div><div class="quick-actions"><a class="btn primary" href="{% url 'deposit' %}">Deposit</a><a class="btn secondary" href="{% url 'withdraw' %}">Withdraw</a></div></div>
   <div class="metric-grid">
     <article class="metric"><span>Available Balance</span><strong>{{ wallet.available_balance|naira }}</strong></article>
     <article class="metric"><span>Reserved</span><strong>{{ wallet.reserved_balance|naira }}</strong></article>

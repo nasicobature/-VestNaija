@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 
+from .models import KYCSubmission
+
 
 class RegistrationForm(forms.Form):
     full_name = forms.CharField(max_length=160)
@@ -43,3 +45,21 @@ class RegistrationForm(forms.Form):
 
 class EmailLoginForm(AuthenticationForm):
     username = forms.EmailField(label="Email")
+
+
+class KYCSubmissionForm(forms.ModelForm):
+    date_of_birth = forms.DateField(widget=forms.DateInput(attrs={"type": "date"}))
+
+    class Meta:
+        model = KYCSubmission
+        fields = ["full_name", "date_of_birth", "id_type", "id_number", "id_document", "selfie", "address"]
+        widgets = {"address": forms.Textarea(attrs={"rows": 3})}
+
+    def clean(self):
+        cleaned = super().clean()
+        id_type = cleaned.get("id_type")
+        id_number = cleaned.get("id_number", "")
+        if id_type in (KYCSubmission.IDType.BVN, KYCSubmission.IDType.NIN):
+            if not (id_number.isdigit() and len(id_number) == 11):
+                self.add_error("id_number", "BVN and NIN must be exactly 11 digits.")
+        return cleaned

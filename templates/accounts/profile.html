@@ -15,7 +15,17 @@
       <span>Date joined</span><strong>{{ user.date_joined|date:"M d, Y" }}</strong>
       <span>Email verification</span><strong>Placeholder</strong>
     </div>
-    <p class="notice">KYC verification is required before real-money investing is enabled.</p>
+    {% if user.profile.kyc_status == "verified" %}
+      <p class="notice">Your identity is verified.</p>
+    {% elif latest_kyc.status == "pending" %}
+      <p class="notice">Your identity documents are under review.</p>
+    {% elif latest_kyc.status == "rejected" %}
+      <p class="notice">Your last submission was rejected: {{ latest_kyc.rejection_reason }}</p>
+      <a class="btn primary" href="{% url 'kyc_submit' %}">Resubmit identity documents</a>
+    {% else %}
+      <p class="notice">Verify your identity before withdrawing real funds.</p>
+      <a class="btn primary" href="{% url 'kyc_submit' %}">Start identity verification</a>
+    {% endif %}
   </div>
 </section>
 {% endblock %}

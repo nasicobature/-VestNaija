@@ -8,7 +8,9 @@ from investments.models import Asset
 from portfolio.services import portfolio_summary
 from wallet.services import get_or_create_wallet
 
-from .forms import EmailLoginForm, RegistrationForm
+from .forms import EmailLoginForm, KYCSubmissionForm, RegistrationForm
+from .models import KYCSubmission, UserProfile
+from .services import submit_kyc
 
 
 def landing(request):
@@ -23,7 +25,7 @@ def register(request):
             user = form.save()
             get_or_create_wallet(user)
             login(request, user)
-            messages.success(request, "Welcome to VestNaija demo mode.")
+            messages.success(request, "Welcome to VestNaija.")
             return redirect("dashboard")
     else:
         form = RegistrationForm()
@@ -63,4 +65,28 @@ def dashboard(request):
 
 @login_required
 def profile(request):
-    return render(request, "accounts/profile.html")
+    latest_kyc = request.user.kyc_submissions.first()
+    return render(request, "accounts/profile.html", {"latest_kyc": latest_kyc})
+
+
+@login_required
+def kyc_submit(request):
+    profile = request.user.profile
+    latest = request.user.kyc_submissions.first()
+
+    if profile.kyc_status == UserProfile.KYCStatus.VERIFIED:
+        messages.info(request, "Your identity is already verified.")
+        return redirect("profile")
+    if latest and latest.status == KYCSubmission.Status.PENDING:
+        messages.info(request, "Your identity documents are already under review.")
+        return redirect("profile")
+
+    if request.method == "POST":
+        form = KYCSubmissionForm(request.POST, request.FILES)
+        if form.is_valid():
+            submit_kyc(request.user, form.cleaned_data)
+            messages.success(request, "Identity documents submitted. We'll review them shortly.")
+            return redirect("profile")
+    else:
+        form = KYCSubmissionForm()
+    return render(request, "accounts/kyc_submit.html", {"form": form, "latest": latest})

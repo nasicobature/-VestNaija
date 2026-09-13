@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
+from accounts.models import UserProfile
 from payments.services import initiate_deposit, simulate_deposit, simulate_withdrawal
 from portfolio.services import portfolio_summary
 
@@ -41,12 +42,22 @@ def deposit(request):
 
 @login_required
 def withdraw(request):
+    live_provider = (settings.PAYMENT_PROVIDER or "mock").lower().startswith("flutterwave")
+    kyc_required = live_provider and request.user.profile.kyc_status != UserProfile.KYCStatus.VERIFIED
+    if kyc_required:
+        messages.error(request, "Verify your identity before withdrawing real funds.")
+        return redirect("kyc_submit")
+
     if request.method == "POST":
         form = WithdrawalForm(request.POST)
         if form.is_valid():
             try:
                 simulate_withdrawal(request.user, **form.cleaned_data)
-                messages.success(request, "Demo withdrawal request created.")
+                messages.success(
+                    request,
+                    "Withdrawal request received. Payouts are reviewed and sent manually for now — "
+                    "there is no automatic bank transfer connected yet.",
+                )
                 return redirect("wallet")
             except ValueError as exc:
                 messages.error(request, str(exc))
