@@ -7,13 +7,13 @@
     {{ form.non_field_errors }}
     <div class="quote-card">
       <span>Market price</span><strong>{{ asset.current_price|naira }}</strong>
-      <small>Demo fee rate {{ fee_rate }}. Estimated fee per share {{ market_fee|naira }}.</small>
+      <small>Fee rate {{ fee_rate }}. Estimated fee per share {{ market_fee|naira }}.</small>
     </div>
     <label>Side{{ form.side }}</label>
     <label>Order type{{ form.order_type }}</label>
     <label>Quantity{{ form.quantity }}</label>
     <label>Limit price{{ form.limit_price }}</label>
-    <button class="btn primary wide">Place Demo Order</button>
+    <button class="btn primary wide">Place Order</button>
     <p class="notice">Market orders fill immediately at the current simulated price.</p>
   </form>
   <aside class="panel order-sidecar">

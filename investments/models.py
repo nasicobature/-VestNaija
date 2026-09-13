@@ -4,7 +4,7 @@ from django.db import models
 class Asset(models.Model):
     class Status(models.TextChoices):
         ACTIVE = "active", "Active"
-        IPO_DEMO = "ipo_demo", "IPO / Demo"
+        IPO_DEMO = "ipo_demo", "IPO / Simulated"
         DISABLED = "disabled", "Disabled"
 
     name = models.CharField(max_length=160)
@@ -16,7 +16,7 @@ class Asset(models.Model):
     minimum_quantity = models.PositiveIntegerField(default=1)
     available_quantity = models.PositiveIntegerField(default=0)
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.IPO_DEMO)
-    is_demo_data = models.BooleanField(default=True)
+    is_demo_data = models.BooleanField(default=True, verbose_name="synthetic data")
     is_enabled = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -39,7 +39,7 @@ class IPO(models.Model):
     minimum_subscription = models.PositiveIntegerField(default=10)
     opens_at = models.DateField(blank=True, null=True)
     closes_at = models.DateField(blank=True, null=True)
-    status = models.CharField(max_length=32, default="Demo subscription")
+    status = models.CharField(max_length=32, default="Simulated subscription")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

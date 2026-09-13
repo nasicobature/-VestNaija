@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="{% static 'css/app.css' %}">
 </head>
 <body>
-  <div class="demo-ribbon">DEMO MODE - No real money or securities are being traded. All market data is simulated.</div>
+  <div class="demo-ribbon">Practice Trading &mdash; asset prices are simulated and not connected to a live market.{% if payments_live %} Wallet funding is real.{% else %} Wallet funding is simulated too.{% endif %}</div>
   <header class="topbar">
     <a class="brand" href="{% url 'landing' %}"><span>V</span><strong>VestNaija</strong></a>
     <nav class="desktop-nav">

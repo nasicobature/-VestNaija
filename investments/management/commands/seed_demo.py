@@ -22,7 +22,7 @@ class Command(BaseCommand):
                 "minimum_quantity": 10,
                 "available_quantity": 500000,
                 "status": Asset.Status.IPO_DEMO,
-                "description": "Demo IPO-style opportunity for product testing. Data is simulated and not an official offer.",
+                "description": "Simulated IPO-style opportunity for product testing. Data is simulated and not an official offer.",
             },
             {
                 "symbol": "MTNN",
@@ -32,7 +32,7 @@ class Command(BaseCommand):
                 "minimum_quantity": 1,
                 "available_quantity": 100000,
                 "status": Asset.Status.ACTIVE,
-                "description": "Demo equity card for marketplace and portfolio flows.",
+                "description": "Simulated equity card for marketplace and portfolio flows.",
             },
             {
                 "symbol": "ZENITH",
@@ -48,12 +48,12 @@ class Command(BaseCommand):
         for data in assets:
             asset, _ = Asset.objects.update_or_create(symbol=data["symbol"], defaults={**data, "market": "NGX", "is_demo_data": True, "is_enabled": True})
             if asset.symbol == "DANGREF":
-                IPO.objects.update_or_create(asset=asset, defaults={"offer_price": asset.current_price, "minimum_subscription": 10, "status": "IPO / DEMO"})
+                IPO.objects.update_or_create(asset=asset, defaults={"offer_price": asset.current_price, "minimum_subscription": 10, "status": "IPO / Simulated"})
 
-        FeeSchedule.objects.update_or_create(name="Demo brokerage fee", defaults={"rate": Decimal("0.00500"), "is_active": True, "notes": "Configurable placeholder; not an official fee schedule."})
-        TradingSetting.objects.update_or_create(key="demo_mode", defaults={"value": "enabled", "description": "No real money or securities are traded."})
+        FeeSchedule.objects.update_or_create(name="Standard brokerage fee", defaults={"rate": Decimal("0.00500"), "is_active": True, "notes": "Configurable placeholder; not an official fee schedule."})
+        TradingSetting.objects.update_or_create(key="trading_mode", defaults={"value": "simulated", "description": "No real securities are traded; asset prices are simulated."})
 
-        user, created = User.objects.get_or_create(username="nasir@example.com", defaults={"email": "nasir@example.com", "first_name": "Nasir", "last_name": "Demo"})
+        user, created = User.objects.get_or_create(username="nasir@example.com", defaults={"email": "nasir@example.com", "first_name": "Nasir", "last_name": ""})
         if created:
             user.set_password("DemoPass123!")
             user.save()

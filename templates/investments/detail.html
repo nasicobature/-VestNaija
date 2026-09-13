@@ -17,12 +17,12 @@
   </div>
   <div class="two-col">
     <section class="panel">
-      <div class="section-title"><h2>Investment Brief</h2><span>DEMO DATA</span></div>
+      <div class="section-title"><h2>Investment Brief</h2><span>SIMULATED DATA</span></div>
       <p>{{ asset.description }}</p>
-      <p class="notice">This sandbox does not represent an offer to buy or sell securities.</p>
+      <p class="notice">This does not represent an offer to buy or sell securities.</p>
     </section>
     <section class="panel">
-      <div class="section-title"><h2>Demo IPO Terms</h2><span>{{ asset.status|upper }}</span></div>
+      <div class="section-title"><h2>IPO Terms</h2><span>{{ asset.status|upper }}</span></div>
       {% if asset.ipo %}
       <div class="status-grid">
         <span>Offer price</span><strong>{{ asset.ipo.offer_price|naira }}</strong>

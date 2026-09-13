@@ -18,7 +18,7 @@
     <article class="metric positive"><span>Total Return</span><strong>{{ summary.total_return|naira }}</strong></article>
   </div>
   <div class="two-col">
-    <section class="panel chart-panel"><div class="section-title"><h2>Portfolio Performance</h2><span>DEMO DATA</span></div><canvas id="portfolioChart"></canvas></section>
+    <section class="panel chart-panel"><div class="section-title"><h2>Portfolio Performance</h2><span>SIMULATED DATA</span></div><canvas id="portfolioChart"></canvas></section>
     <section class="panel"><div class="section-title"><h2>Available IPOs</h2><span>SIMULATED</span></div>
       {% for asset in assets %}<a class="list-row" href="{% url 'asset_detail' asset.symbol %}"><b>{{ asset.name }}</b><span>{{ asset.current_price|naira }}</span></a>{% endfor %}
     </section>

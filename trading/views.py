@@ -21,9 +21,9 @@ def order_ticket(request, symbol, side):
             try:
                 order = create_order(request.user, asset, **form.cleaned_data)
                 if order.status == Order.Status.FILLED:
-                    messages.success(request, "Demo order filled successfully.")
+                    messages.success(request, "Order filled successfully.")
                 else:
-                    messages.success(request, "Demo limit order placed and pending.")
+                    messages.success(request, "Limit order placed and pending.")
                 return redirect("orders")
             except ValueError as exc:
                 messages.error(request, str(exc))
@@ -61,7 +61,7 @@ def cancel(request, order_id):
     if request.method == "POST":
         try:
             cancel_order(order_id, user=request.user)
-            messages.success(request, "Demo order cancelled and reserved funds released.")
+            messages.success(request, "Order cancelled and reserved funds released.")
         except ValueError as exc:
             messages.error(request, str(exc))
     return redirect("orders")

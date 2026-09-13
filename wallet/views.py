@@ -33,7 +33,7 @@ def deposit(request):
                 messages.error(request, "Unable to start payment right now. Please try again.")
             else:
                 simulate_deposit(request.user, amount)
-                messages.success(request, "Demo deposit completed. No real money moved.")
+                messages.success(request, "Sandbox deposit completed. No real money moved.")
                 return redirect("wallet")
     else:
         form = DepositForm()

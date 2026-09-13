@@ -88,6 +88,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'payments.context_processors.payment_mode',
             ],
         },
     },
@@ -197,7 +198,6 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
-VESTNAIJA_DEMO_MODE = True
 DEFAULT_BROKER_FEE_RATE = "0.005"
 PAYMENT_PROVIDER = os.getenv("PAYMENT_PROVIDER", "mock")
 KYC_PROVIDER = os.getenv("KYC_PROVIDER", "manual")

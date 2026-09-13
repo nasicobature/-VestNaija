@@ -3,7 +3,7 @@
 {% block content %}
 <section class="dashboard">
   <div class="page-head">
-    <div><p class="eyebrow">Invest Marketplace</p><h1>Demo equities and IPO opportunities</h1></div>
+    <div><p class="eyebrow">Invest Marketplace</p><h1>Simulated equities and IPO opportunities</h1></div>
     <a class="btn secondary" href="{% url 'portfolio' %}">View portfolio</a>
   </div>
   <div class="asset-grid">
@@ -20,7 +20,7 @@
       </div>
     </article>
     {% empty %}
-    <section class="panel"><p class="empty">No demo assets are enabled yet. Add assets in the admin console.</p></section>
+    <section class="panel"><p class="empty">No assets are enabled yet. Add assets in the admin console.</p></section>
     {% endfor %}
   </div>
 </section>

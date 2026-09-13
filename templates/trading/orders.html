@@ -2,7 +2,7 @@
 {% load money %}
 {% block content %}
 <section class="dashboard">
-  <div class="page-head"><div><p class="eyebrow">Orders</p><h1>Track demo orders</h1></div><a class="btn primary" href="{% url 'marketplace' %}">New order</a></div>
+  <div class="page-head"><div><p class="eyebrow">Orders</p><h1>Track your orders</h1></div><a class="btn primary" href="{% url 'marketplace' %}">New order</a></div>
   <div class="two-col">
     <section class="panel">
       <div class="section-title"><h2>Open Orders</h2><span>{{ open_orders|length }}</span></div>

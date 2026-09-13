@@ -8,7 +8,7 @@
     <p class="subtitle">Invest. Track. Grow.</p>
     <p class="hero-copy">A premium sandbox investment wallet and IPO trading prototype for Nigerian users, designed for future licensed broker and payment-provider integration.</p>
     <div class="hero-actions">
-      <a class="btn primary" href="{% url 'register' %}">Open demo wallet</a>
+      <a class="btn primary" href="{% url 'register' %}">Get started</a>
       <a class="btn secondary" href="{% url 'login' %}">Login</a>
     </div>
     <p class="risk">Investments involve risk. Past performance does not guarantee future returns.</p>
@@ -16,19 +16,19 @@
   <div class="phone-preview">
     <div class="mini-card green"><span>Wallet Balance</span><strong>NGN 250,000.00</strong></div>
     <div class="chart-bars"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-    <div class="asset-row"><b>DANGOTE REFINERY</b><span>IPO / DEMO</span></div>
-    <div class="asset-row"><b>MTN Nigeria</b><span>Demo Data</span></div>
+    <div class="asset-row"><b>DANGOTE REFINERY</b><span>IPO / Simulated</span></div>
+    <div class="asset-row"><b>MTN Nigeria</b><span>Simulated Data</span></div>
   </div>
 </section>
 <section class="market-strip">
   {% for asset in assets %}
   <article>
-    <small>{{ asset.symbol }} / DEMO DATA</small>
+    <small>{{ asset.symbol }} / SIMULATED</small>
     <strong>{{ asset.current_price|naira }}</strong>
     <span>{{ asset.name }}</span>
   </article>
   {% empty %}
-  <article><small>DEMO DATA</small><strong>Ready</strong><span>Seed assets after migration</span></article>
+  <article><small>SIMULATED</small><strong>Ready</strong><span>Seed assets after migration</span></article>
   {% endfor %}
 </section>
 {% endblock %}

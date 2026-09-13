@@ -46,7 +46,7 @@ def create_order(user, asset, side, order_type, quantity, limit_price=None):
         estimated_fee=fee,
         reserved_amount=reserved,
     )
-    log_audit(user, "demo_order_created", order, {"side": side, "order_type": order_type, "quantity": quantity})
+    log_audit(user, "order_created", order, {"side": side, "order_type": order_type, "quantity": quantity})
     return try_execute_order(order)
 
 
@@ -83,7 +83,7 @@ def try_execute_order(order):
             return order
         holding.quantity -= order.quantity
         holding.save(update_fields=["quantity", "updated_at"])
-        credit_wallet(order.user, gross - fee, WalletTransaction.Type.SALE_PROCEEDS, f"Demo sale proceeds for {order.asset.symbol}")
+        credit_wallet(order.user, gross - fee, WalletTransaction.Type.SALE_PROCEEDS, f"Sale proceeds for {order.asset.symbol}")
 
     Trade.objects.create(
         order=order,
@@ -100,7 +100,7 @@ def try_execute_order(order):
     order.status = Order.Status.FILLED
     order.executed_at = timezone.now()
     order.save(update_fields=["filled_quantity", "execution_price", "estimated_fee", "status", "executed_at"])
-    log_audit(order.user, "demo_order_filled", order, {"price": str(current_price), "quantity": order.quantity})
+    log_audit(order.user, "order_filled", order, {"price": str(current_price), "quantity": order.quantity})
     return order
 
 
@@ -116,7 +116,7 @@ def cancel_order(order_id, user=None):
         release_reserved(order.user, order.reserved_amount, f"Cancelled {order.asset.symbol} buy order")
     order.status = Order.Status.CANCELLED
     order.save(update_fields=["status"])
-    log_audit(order.user, "demo_order_cancelled", order, {"reserved_released": str(order.reserved_amount)})
+    log_audit(order.user, "order_cancelled", order, {"reserved_released": str(order.reserved_amount)})
     return order
 
 

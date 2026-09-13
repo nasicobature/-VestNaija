@@ -22,7 +22,7 @@ class MockPaymentProvider(PaymentProvider):
             amount=amount,
             provider="mock",
             status=Payment.Status.PENDING,
-            metadata={"mode": "demo", "message": "No real money is collected."},
+            metadata={"mode": "mock", "message": "No real money is collected."},
         )
 
     def verify_payment(self, reference):

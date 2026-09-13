@@ -4,13 +4,13 @@ from .models import FeeSchedule, Holding, Order, Trade, TradingSetting
 from .services import cancel_order, try_execute_order
 
 
-@admin.action(description="Execute selected pending demo orders")
+@admin.action(description="Execute selected pending orders")
 def execute_demo_orders(modeladmin, request, queryset):
     for order in queryset:
         try_execute_order(order)
 
 
-@admin.action(description="Cancel selected pending demo orders")
+@admin.action(description="Cancel selected pending orders")
 def cancel_demo_orders(modeladmin, request, queryset):
     for order in queryset:
         if order.status == Order.Status.PENDING:
