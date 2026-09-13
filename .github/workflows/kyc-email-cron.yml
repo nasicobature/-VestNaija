@@ -1,0 +1,15 @@
+name: KYC approval email cron
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger send_due_kyc_emails on Render
+        run: |
+          curl -fsS -H "X-Cron-Token: ${{ secrets.CRON_SECRET }}" \
+            "https://vestnaija-i35p.onrender.com/internal/kyc-emails/"

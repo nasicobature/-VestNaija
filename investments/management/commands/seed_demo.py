@@ -1,6 +1,7 @@
 from datetime import timedelta
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from django.utils import timezone
@@ -937,14 +938,20 @@ class Command(BaseCommand):
         FeeSchedule.objects.update_or_create(name="Standard brokerage fee", defaults={"rate": Decimal("0.00500"), "is_active": True, "notes": "Configurable placeholder; not an official fee schedule."})
         TradingSetting.objects.update_or_create(key="trading_mode", defaults={"value": "simulated", "description": "No real securities are traded; asset prices are simulated."})
 
-        user, created = User.objects.get_or_create(username="nasir@example.com", defaults={"email": "nasir@example.com", "first_name": "Nasir", "last_name": ""})
-        if created:
-            user.set_password("DemoPass123!")
-            user.save()
-            user.profile.phone = "+2348012345678"
-            user.profile.accepted_terms = True
-            user.profile.save()
-        get_or_create_wallet(user)
-        if user.wallet.total_deposited == 0:
-            simulate_deposit(user, Decimal("250000.00"))
-        self.stdout.write(self.style.SUCCESS(f"VestNaija demo data seeded with {len(assets)} listings. Demo login: nasir@example.com / DemoPass123!"))
+        if settings.DEBUG:
+            # Login-with-known-password demo account. Only ever created on local/dev
+            # (DEBUG=True); never in production, since this repo is public and the
+            # password below is readable by anyone.
+            user, created = User.objects.get_or_create(username="nasir@example.com", defaults={"email": "nasir@example.com", "first_name": "Nasir", "last_name": ""})
+            if created:
+                user.set_password("DemoPass123!")
+                user.save()
+                user.profile.phone = "+2348012345678"
+                user.profile.accepted_terms = True
+                user.profile.save()
+            get_or_create_wallet(user)
+            if user.wallet.total_deposited == 0:
+                simulate_deposit(user, Decimal("250000.00"))
+            self.stdout.write(self.style.SUCCESS(f"VestNaija demo data seeded with {len(assets)} listings. Demo login: nasir@example.com / DemoPass123!"))
+        else:
+            self.stdout.write(self.style.SUCCESS(f"VestNaija market data seeded with {len(assets)} listings."))

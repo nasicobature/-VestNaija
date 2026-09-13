@@ -7,7 +7,12 @@ services:
   - type: web
     name: vestnaija
     env: python
-    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate"
+    # seed_demo keeps market/IPO listings in sync with the codebase on every
+    # deploy (it only creates its demo login account when DEBUG=True, so this
+    # is safe to run against production). lockdown_demo_accounts deactivates
+    # that account and cancels its pending withdrawals if it was ever created
+    # here before that guard existed.
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py seed_demo && python manage.py lockdown_demo_accounts"
     startCommand: "gunicorn config.wsgi:application"
     envVars:
       - key: DJANGO_SECRET_KEY
@@ -44,37 +49,10 @@ services:
         value: "True"
       - key: DEFAULT_FROM_EMAIL
         sync: false
-
-  # Sends the queued "you're verified" KYC email once its 24-hour delay has
-  # elapsed. Render Cron Jobs require a paid plan; on the free tier, run
-  # `python manage.py send_due_kyc_emails` periodically some other way
-  # instead (a local scheduled task, another host's cron, etc).
-  - type: cron
-    name: vestnaija-kyc-email-cron
-    env: python
-    schedule: "*/15 * * * *"
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python manage.py send_due_kyc_emails"
-    envVars:
-      - key: DJANGO_SECRET_KEY
-        generateValue: true
-      - key: DEBUG
-        value: "False"
-      - key: DATABASE_URL
-        fromDatabase:
-          name: vestnaija-db
-          property: connectionString
-      - key: ALLOWED_HOSTS
-        value: ""
-      - key: EMAIL_HOST
-        sync: false
-      - key: EMAIL_PORT
-        value: "587"
-      - key: EMAIL_HOST_USER
-        sync: false
-      - key: EMAIL_HOST_PASSWORD
-        sync: false
-      - key: EMAIL_USE_TLS
-        value: "True"
-      - key: DEFAULT_FROM_EMAIL
+      # Shared secret for /internal/kyc-emails/, polled every 15 min by this
+      # repo's .github/workflows/kyc-email-cron.yml GitHub Action (set the
+      # same value as the CRON_SECRET repo secret on GitHub). Render Cron
+      # Jobs require a paid plan, so this replaces the free-tier-incompatible
+      # cron service that used to be defined here.
+      - key: CRON_SECRET
         sync: false

@@ -223,6 +223,12 @@ FLW_ENCRYPTION_KEY = os.getenv("FLW_ENCRYPTION_KEY", "")
 FLW_SECRET_HASH = os.getenv("FLW_SECRET_HASH", "")
 FLW_BASE_URL = os.getenv("FLW_BASE_URL", "https://api.flutterwave.com/v3")
 
+# Shared secret for the /internal/kyc-emails/ endpoint, which lets a free
+# external scheduler (e.g. the repo's GitHub Actions cron workflow) trigger
+# send_due_kyc_emails on hosts where a real cron/worker service isn't
+# available. Empty by default so the endpoint stays disabled until set.
+CRON_SECRET = os.getenv("CRON_SECRET", "")
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

@@ -19,12 +19,15 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from accounts.cron_views import run_kyc_emails
+
 admin.site.site_header = "VestNaija Business Console"
 admin.site.site_title = "VestNaija Admin"
 admin.site.index_title = "Investment Operations"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('internal/kyc-emails/', run_kyc_emails, name='run_kyc_emails'),
     path('', include('accounts.urls')),
     path('wallet/', include('wallet.urls')),
     path('payments/', include('payments.urls')),
