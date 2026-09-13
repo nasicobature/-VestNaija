@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load money %}
+{% block content %}
+<section class="dashboard">
+  <div class="page-head">
+    <div><p class="eyebrow">Invest Marketplace</p><h1>Demo equities and IPO opportunities</h1></div>
+    <a class="btn secondary" href="{% url 'portfolio' %}">View portfolio</a>
+  </div>
+  <div class="asset-grid">
+    {% for asset in assets %}
+    <article class="panel asset-card">
+      <div class="asset-top"><span>{{ asset.market }}</span><strong>{{ asset.symbol }}</strong></div>
+      <h2>{{ asset.name }}</h2>
+      <p>{{ asset.description|truncatewords:24 }}</p>
+      <div class="quote-line"><span>Current price</span><strong>{{ asset.current_price|naira }}</strong></div>
+      <div class="quote-line"><span>Change</span><strong class="{% if asset.price_change >= 0 %}positive-text{% else %}negative-text{% endif %}">{{ asset.price_change|naira }}</strong></div>
+      <div class="card-actions">
+        <a class="btn secondary" href="{% url 'asset_detail' asset.symbol %}">Details</a>
+        <a class="btn primary" href="{% url 'order_ticket' asset.symbol 'buy' %}">Buy</a>
+      </div>
+    </article>
+    {% empty %}
+    <section class="panel"><p class="empty">No demo assets are enabled yet. Add assets in the admin console.</p></section>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

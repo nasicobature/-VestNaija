@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-grid">
+  <div class="panel profile-card">
+    <div class="avatar">{{ user.first_name|first }}{{ user.last_name|first }}</div>
+    <h2>{{ user.get_full_name|default:user.email }}</h2>
+    <p>{{ user.email }}</p>
+    <p>{{ user.profile.phone }}</p>
+  </div>
+  <div class="panel">
+    <p class="eyebrow">Account Status</p>
+    <h3>{{ user.profile.account_status }}</h3>
+    <div class="status-grid">
+      <span>KYC status</span><strong>{{ user.profile.get_kyc_status_display }}</strong>
+      <span>Date joined</span><strong>{{ user.date_joined|date:"M d, Y" }}</strong>
+      <span>Email verification</span><strong>Placeholder</strong>
+    </div>
+    <p class="notice">KYC verification is required before real-money investing is enabled.</p>
+  </div>
+</section>
+{% endblock %}

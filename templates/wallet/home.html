@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load money %}
+{% block content %}
+<section class="dashboard">
+  <div class="page-head"><div><p class="eyebrow">Digital Wallet</p><h1>Your demo cash position</h1></div><div class="quick-actions"><a class="btn primary" href="{% url 'deposit' %}">Deposit</a><a class="btn secondary" href="{% url 'withdraw' %}">Withdraw</a></div></div>
+  <div class="metric-grid">
+    <article class="metric"><span>Available Balance</span><strong>{{ wallet.available_balance|naira }}</strong></article>
+    <article class="metric"><span>Reserved</span><strong>{{ wallet.reserved_balance|naira }}</strong></article>
+    <article class="metric"><span>Total Deposited</span><strong>{{ wallet.total_deposited|naira }}</strong></article>
+    <article class="metric"><span>Total Portfolio</span><strong>{{ summary.value|naira }}</strong></article>
+  </div>
+  <section class="panel"><div class="section-title"><h2>Recent Activity</h2><a href="{% url 'transactions' %}">Transactions</a></div>{% for tx in wallet.transactions.all|slice:":8" %}<div class="list-row"><b>{{ tx.description }}</b><span>{{ tx.amount|naira }} / {{ tx.get_status_display }}</span></div>{% empty %}<p class="empty">Your wallet activity will appear here.</p>{% endfor %}</section>
+</section>
+{% endblock %}

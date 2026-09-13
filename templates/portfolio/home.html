@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load money %}
+{% block content %}
+<section class="dashboard">
+  <div class="page-head"><div><p class="eyebrow">Portfolio</p><h1>Your demo holdings</h1></div><a class="btn primary" href="{% url 'marketplace' %}">Invest</a></div>
+  <div class="metric-grid">
+    <article class="metric"><span>Market Value</span><strong>{{ summary.value|naira }}</strong></article>
+    <article class="metric"><span>Total Cost</span><strong>{{ summary.cost|naira }}</strong></article>
+    <article class="metric"><span>Today</span><strong class="{% if summary.today_change >= 0 %}positive-text{% else %}negative-text{% endif %}">{{ summary.today_change|naira }}</strong></article>
+    <article class="metric"><span>Total Return</span><strong class="{% if summary.total_return >= 0 %}positive-text{% else %}negative-text{% endif %}">{{ summary.total_return|naira }}</strong></article>
+  </div>
+  <section class="panel">
+    <div class="section-title"><h2>Holdings</h2><span>DEMO DATA</span></div>
+    {% for holding in summary.holdings %}
+    <div class="table-row"><b>{{ holding.asset.symbol }}</b><span>{{ holding.asset.name }}</span><span>{{ holding.quantity }} shares</span><span>{{ holding.asset.current_price|naira }}</span><a href="{% url 'order_ticket' holding.asset.symbol 'sell' %}">Sell</a></div>
+    {% empty %}
+    <p class="empty">Your holdings will appear after a demo buy order is filled.</p>
+    {% endfor %}
+  </section>
+</section>
+{% endblock %}

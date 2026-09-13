@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="trade-shell">
+  <form method="post" class="panel form-panel">{% csrf_token %}
+    <p class="eyebrow">Demo Withdrawal</p><h2>Request withdrawal</h2>
+    <p class="notice">Withdrawal processing is simulated in Demo Mode.</p>
+    <label>Amount{{ form.amount }}</label><label>Bank{{ form.bank }}</label><label>Account number{{ form.account_number }}</label><label>Account name{{ form.account_name }}</label>
+    <button class="btn primary wide">Create Request</button>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load money %}
+{% block content %}
+<section class="dashboard">
+  <div class="page-head">
+    <div><p class="eyebrow">{{ asset.market }} / {{ asset.get_status_display }}</p><h1>{{ asset.name }}</h1></div>
+    <div class="quick-actions">
+      <a class="btn primary" href="{% url 'order_ticket' asset.symbol 'buy' %}">Buy</a>
+      <a class="btn secondary" href="{% url 'order_ticket' asset.symbol 'sell' %}">Sell</a>
+    </div>
+  </div>
+  <div class="metric-grid">
+    <article class="metric"><span>Symbol</span><strong>{{ asset.symbol }}</strong></article>
+    <article class="metric"><span>Current Price</span><strong>{{ asset.current_price|naira }}</strong></article>
+    <article class="metric"><span>Available</span><strong>{{ asset.available_quantity }}</strong></article>
+    <article class="metric"><span>Your Holding</span><strong>{{ holding.quantity|default:0 }}</strong></article>
+  </div>
+  <div class="two-col">
+    <section class="panel">
+      <div class="section-title"><h2>Investment Brief</h2><span>DEMO DATA</span></div>
+      <p>{{ asset.description }}</p>
+      <p class="notice">This sandbox does not represent an offer to buy or sell securities.</p>
+    </section>
+    <section class="panel">
+      <div class="section-title"><h2>Demo IPO Terms</h2><span>{{ asset.status|upper }}</span></div>
+      {% if asset.ipo %}
+      <div class="status-grid">
+        <span>Offer price</span><strong>{{ asset.ipo.offer_price|naira }}</strong>
+        <span>Minimum subscription</span><strong>{{ asset.ipo.minimum_subscription }}</strong>
+        <span>Window</span><strong>{{ asset.ipo.opens_at|date:"M d, Y"|default:"TBA" }} - {{ asset.ipo.closes_at|date:"M d, Y"|default:"TBA" }}</strong>
+      </div>
+      {% else %}
+      <p class="empty">No IPO terms attached to this asset.</p>
+      {% endif %}
+    </section>
+  </div>
+</section>
+{% endblock %}

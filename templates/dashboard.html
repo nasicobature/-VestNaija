@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load money %}
+{% block content %}
+<section class="dashboard">
+  <div class="page-head">
+    <div><p class="eyebrow">Good day, {{ user.first_name|default:"Investor" }}</p><h1>Here's your investment overview.</h1></div>
+    <div class="quick-actions">
+      <a class="btn primary" href="{% url 'deposit' %}">Deposit</a>
+      <a class="btn secondary" href="{% url 'marketplace' %}">Buy</a>
+      <a class="btn secondary" href="{% url 'portfolio' %}">Sell</a>
+      <a class="btn secondary" href="{% url 'withdraw' %}">Withdraw</a>
+    </div>
+  </div>
+  <div class="metric-grid">
+    <article class="metric"><span>Wallet Balance</span><strong>{{ wallet.available_balance|naira }}</strong></article>
+    <article class="metric"><span>Portfolio</span><strong>{{ summary.value|naira }}</strong></article>
+    <article class="metric positive"><span>Today's P/L</span><strong>{{ summary.today_change|naira }}</strong></article>
+    <article class="metric positive"><span>Total Return</span><strong>{{ summary.total_return|naira }}</strong></article>
+  </div>
+  <div class="two-col">
+    <section class="panel chart-panel"><div class="section-title"><h2>Portfolio Performance</h2><span>DEMO DATA</span></div><canvas id="portfolioChart"></canvas></section>
+    <section class="panel"><div class="section-title"><h2>Available IPOs</h2><span>SIMULATED</span></div>
+      {% for asset in assets %}<a class="list-row" href="{% url 'asset_detail' asset.symbol %}"><b>{{ asset.name }}</b><span>{{ asset.current_price|naira }}</span></a>{% endfor %}
+    </section>
+  </div>
+  <div class="two-col">
+    <section class="panel"><div class="section-title"><h2>Recent Orders</h2><a href="{% url 'orders' %}">View all</a></div>{% for order in orders %}<div class="list-row"><b>{{ order.get_side_display }} {{ order.asset.symbol }}</b><span>{{ order.get_status_display }}</span></div>{% empty %}<p class="empty">No orders yet.</p>{% endfor %}</section>
+    <section class="panel"><div class="section-title"><h2>Recent Transactions</h2><a href="{% url 'transactions' %}">View all</a></div>{% for tx in transactions %}<div class="list-row"><b>{{ tx.get_type_display }}</b><span>{{ tx.amount|naira }}</span></div>{% empty %}<p class="empty">No transactions yet.</p>{% endfor %}</section>
+  </div>
+</section>
+{% endblock %}

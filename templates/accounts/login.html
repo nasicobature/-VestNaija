@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="auth-shell">
+  <form method="post" class="panel form-panel">{% csrf_token %}
+    <p class="eyebrow">Welcome back</p><h2>Login to VestNaija</h2>
+    {{ form.non_field_errors }}
+    <label>Email{{ form.username }}</label>
+    <label>Password{{ form.password }}</label>
+    <label class="check"><input type="checkbox" name="remember"> <span>Remember me</span></label>
+    <button class="btn primary wide">Login</button>
+    <a class="muted" href="#">Forgot password?</a>
+  </form>
+</section>
+{% endblock %}

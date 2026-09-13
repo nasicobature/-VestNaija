@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load money %}
+{% block content %}
+<section class="trade-shell">
+  <form method="post" class="panel form-panel">{% csrf_token %}
+    <p class="eyebrow">{{ asset.symbol }} Order Ticket</p><h2>{{ side|title }} {{ asset.name }}</h2>
+    {{ form.non_field_errors }}
+    <div class="quote-card">
+      <span>Market price</span><strong>{{ asset.current_price|naira }}</strong>
+      <small>Demo fee rate {{ fee_rate }}. Estimated fee per share {{ market_fee|naira }}.</small>
+    </div>
+    <label>Side{{ form.side }}</label>
+    <label>Order type{{ form.order_type }}</label>
+    <label>Quantity{{ form.quantity }}</label>
+    <label>Limit price{{ form.limit_price }}</label>
+    <button class="btn primary wide">Place Demo Order</button>
+    <p class="notice">Market orders fill immediately at the current simulated price.</p>
+  </form>
+  <aside class="panel order-sidecar">
+    <p class="eyebrow">Position</p>
+    <div class="status-grid">
+      <span>Held quantity</span><strong>{{ holding.quantity|default:0 }}</strong>
+      <span>Average price</span><strong>{{ holding.average_price|default:0|naira }}</strong>
+      <span>Available asset quantity</span><strong>{{ asset.available_quantity }}</strong>
+    </div>
+  </aside>
+</section>
+{% endblock %}

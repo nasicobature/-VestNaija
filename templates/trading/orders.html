@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load money %}
+{% block content %}
+<section class="dashboard">
+  <div class="page-head"><div><p class="eyebrow">Orders</p><h1>Track demo orders</h1></div><a class="btn primary" href="{% url 'marketplace' %}">New order</a></div>
+  <div class="two-col">
+    <section class="panel">
+      <div class="section-title"><h2>Open Orders</h2><span>{{ open_orders|length }}</span></div>
+      {% for order in open_orders %}
+      <div class="table-row">
+        <b>{{ order.get_side_display }} {{ order.asset.symbol }}</b><span>{{ order.quantity }} shares</span><span>{{ order.limit_price|default:order.asset.current_price|naira }}</span>
+        <form method="post" action="{% url 'cancel_order' order.id %}">{% csrf_token %}<button class="link-button">Cancel</button></form>
+      </div>
+      {% empty %}<p class="empty">No pending orders.</p>{% endfor %}
+    </section>
+    <section class="panel">
+      <div class="section-title"><h2>Order History</h2><span>Recent</span></div>
+      {% for order in history %}
+      <div class="table-row"><b>{{ order.get_side_display }} {{ order.asset.symbol }}</b><span>{{ order.quantity }} shares</span><span>{{ order.get_status_display }}</span><span>{{ order.execution_price|default:order.limit_price|naira }}</span></div>
+      {% empty %}<p class="empty">Filled and cancelled orders will appear here.</p>{% endfor %}
+    </section>
+  </div>
+</section>
+{% endblock %}
