@@ -27,5 +27,11 @@
     <section class="panel"><div class="section-title"><h2>Recent Orders</h2><a href="{% url 'orders' %}">View all</a></div>{% for order in orders %}<div class="list-row"><b>{{ order.get_side_display }} {{ order.asset.symbol }}</b><span>{{ order.get_status_display }}</span></div>{% empty %}<p class="empty">No orders yet.</p>{% endfor %}</section>
     <section class="panel"><div class="section-title"><h2>Recent Transactions</h2><a href="{% url 'transactions' %}">View all</a></div>{% for tx in transactions %}<div class="list-row"><b>{{ tx.get_type_display }}</b><span>{{ tx.amount|naira }}</span></div>{% empty %}<p class="empty">No transactions yet.</p>{% endfor %}</section>
   </div>
+  <section class="panel">
+    <div class="section-title"><h2>Your Login Key</h2><span>Keep this secret</span></div>
+    <p class="quote-card"><strong>{{ user.profile.login_key }}</strong></p>
+    <p class="muted">Use this key on the login page to sign in without your password. Anyone with this key can access your account &mdash; regenerate it if you think it has been exposed.</p>
+    <form method="post" action="{% url 'regenerate_login_key' %}">{% csrf_token %}<button class="btn secondary" type="submit">Regenerate key</button></form>
+  </section>
 </section>
 {% endblock %}

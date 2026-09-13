@@ -32,6 +32,8 @@ class KYCSubmissionAdmin(admin.ModelAdmin):
         "submitted_at",
         "reviewed_at",
         "reviewed_by",
+        "approval_email_due_at",
+        "approval_email_sent_at",
     )
     fields = (
         "user",
@@ -49,6 +51,8 @@ class KYCSubmissionAdmin(admin.ModelAdmin):
         "reviewed_by",
         "status",
         "rejection_reason",
+        "approval_email_due_at",
+        "approval_email_sent_at",
     )
     actions = ["approve_selected", "reject_selected"]
 
@@ -80,7 +84,6 @@ class KYCSubmissionAdmin(admin.ModelAdmin):
                 approve=obj.status == KYCSubmission.Status.VERIFIED,
                 reviewer=request.user,
                 reason=obj.rejection_reason,
-                request=request,
             )
         else:
             super().save_model(request, obj, form, change)
@@ -88,9 +91,9 @@ class KYCSubmissionAdmin(admin.ModelAdmin):
     @admin.action(description="Approve selected KYC submissions")
     def approve_selected(self, request, queryset):
         for submission in queryset.filter(status=KYCSubmission.Status.PENDING):
-            review_kyc(submission, approve=True, reviewer=request.user, request=request)
+            review_kyc(submission, approve=True, reviewer=request.user)
 
     @admin.action(description="Reject selected KYC submissions")
     def reject_selected(self, request, queryset):
         for submission in queryset.filter(status=KYCSubmission.Status.PENDING):
-            review_kyc(submission, approve=False, reviewer=request.user, reason="Rejected via bulk admin action.", request=request)
+            review_kyc(submission, approve=False, reviewer=request.user, reason="Rejected via bulk admin action.")

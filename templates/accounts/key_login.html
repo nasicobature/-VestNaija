@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="auth-shell">
+  <form method="post" class="panel form-panel">{% csrf_token %}
+    <p class="eyebrow">Quick login</p><h2>Login with your key</h2>
+    {{ form.non_field_errors }}
+    <label>Login key{{ form.login_key }}{{ form.login_key.errors }}</label>
+    <button class="btn primary wide">Login</button>
+    <a class="muted" href="{% url 'login' %}">Login with email and password instead</a>
+  </form>
+</section>
+{% endblock %}

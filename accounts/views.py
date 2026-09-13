@@ -12,9 +12,9 @@ from investments.models import Asset
 from portfolio.services import portfolio_summary
 from wallet.services import get_or_create_wallet
 
-from .forms import EmailLoginForm, KYCSubmissionForm, RegistrationForm
+from .forms import EmailLoginForm, KeyLoginForm, KYCSubmissionForm, RegistrationForm
 from .models import KYCSubmission, UserProfile
-from .services import send_verification_email, submit_kyc
+from .services import ensure_login_key, regenerate_login_key, send_verification_email, submit_kyc
 from .tokens import email_verification_token
 
 
@@ -52,10 +52,25 @@ class VestLogoutView(LogoutView):
     pass
 
 
+def key_login(request):
+    if request.method == "POST":
+        form = KeyLoginForm(request.POST)
+        if form.is_valid():
+            profile = UserProfile.objects.filter(login_key=form.cleaned_data["login_key"]).select_related("user").first()
+            if profile:
+                login(request, profile.user, backend="django.contrib.auth.backends.ModelBackend")
+                return redirect("dashboard")
+            form.add_error("login_key", "That login key is not recognized.")
+    else:
+        form = KeyLoginForm()
+    return render(request, "accounts/key_login.html", {"form": form})
+
+
 @login_required
 def dashboard(request):
     wallet = get_or_create_wallet(request.user)
     summary = portfolio_summary(request.user)
+    ensure_login_key(request.user.profile)
     return render(
         request,
         "dashboard.html",
@@ -67,6 +82,14 @@ def dashboard(request):
             "transactions": wallet.transactions.all()[:5],
         },
     )
+
+
+@login_required
+def regenerate_login_key_view(request):
+    if request.method == "POST":
+        regenerate_login_key(request.user.profile)
+        messages.success(request, "Your login key has been regenerated. The old key no longer works.")
+    return redirect("dashboard")
 
 
 @login_required

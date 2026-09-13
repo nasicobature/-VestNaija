@@ -53,6 +53,10 @@ class EmailLoginForm(AuthenticationForm):
     username = forms.EmailField(label="Email")
 
 
+class KeyLoginForm(forms.Form):
+    login_key = forms.CharField(label="Login key", widget=forms.TextInput(attrs={"autocomplete": "off"}))
+
+
 class KYCSubmissionForm(forms.ModelForm):
     date_of_birth = forms.DateField(
         widget=forms.DateInput(attrs={"type": "date"}),

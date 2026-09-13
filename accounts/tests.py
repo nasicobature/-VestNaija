@@ -1,13 +1,23 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 from .models import KYCSubmission, UserProfile
-from .services import review_kyc, send_verification_email, submit_kyc
+from .services import (
+    ensure_login_key,
+    regenerate_login_key,
+    review_kyc,
+    send_due_kyc_approval_emails,
+    send_verification_email,
+    submit_kyc,
+)
 from .tokens import email_verification_token
 
 
@@ -56,7 +66,7 @@ class KYCServiceTests(TestCase):
         self.assertEqual(submission.reviewed_by, self.staff)
         self.assertIsNotNone(submission.reviewed_at)
 
-    def test_review_kyc_approve_sends_notification_email(self):
+    def test_review_kyc_approve_schedules_email_without_sending_immediately(self):
         submission = submit_kyc(
             self.user,
             {
@@ -70,8 +80,57 @@ class KYCServiceTests(TestCase):
         )
         mail.outbox.clear()
         review_kyc(submission, approve=True, reviewer=self.staff)
+        submission.refresh_from_db()
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertIsNotNone(submission.approval_email_due_at)
+        self.assertIsNone(submission.approval_email_sent_at)
+        self.assertGreater(submission.approval_email_due_at, timezone.now() + timedelta(hours=23))
+
+    def test_send_due_kyc_approval_emails_skips_ones_not_yet_due(self):
+        submission = submit_kyc(
+            self.user,
+            {
+                "full_name": "Ada Lovelace",
+                "date_of_birth": "1990-01-01",
+                "id_type": KYCSubmission.IDType.BVN,
+                "id_number": "12345678901",
+                "id_document": _fake_document(),
+                "address": "1 Lagos Way",
+            },
+        )
+        review_kyc(submission, approve=True, reviewer=self.staff)
+        mail.outbox.clear()
+        sent = send_due_kyc_approval_emails()
+        self.assertEqual(sent, 0)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_send_due_kyc_approval_emails_sends_once_due(self):
+        submission = submit_kyc(
+            self.user,
+            {
+                "full_name": "Ada Lovelace",
+                "date_of_birth": "1990-01-01",
+                "id_type": KYCSubmission.IDType.BVN,
+                "id_number": "12345678901",
+                "id_document": _fake_document(),
+                "address": "1 Lagos Way",
+            },
+        )
+        review_kyc(submission, approve=True, reviewer=self.staff)
+        submission.approval_email_due_at = timezone.now() - timedelta(minutes=1)
+        submission.save(update_fields=["approval_email_due_at"])
+        mail.outbox.clear()
+        sent = send_due_kyc_approval_emails()
+        submission.refresh_from_db()
+        self.assertEqual(sent, 1)
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn(self.user.email, mail.outbox[0].to)
+        self.assertIsNotNone(submission.approval_email_sent_at)
+
+        mail.outbox.clear()
+        sent_again = send_due_kyc_approval_emails()
+        self.assertEqual(sent_again, 0)
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_review_kyc_reject_records_reason(self):
         submission = submit_kyc(
@@ -216,3 +275,44 @@ class EmailVerificationTests(TestCase):
         self.client.login(username="ada@example.com", password="StrongPass123!")
         self.client.get(reverse("resend_verification"))
         self.assertEqual(len(mail.outbox), 0)
+
+
+class LoginKeyTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="ada@example.com", email="ada@example.com", password="StrongPass123!")
+
+    def test_ensure_login_key_generates_once(self):
+        self.assertIsNone(self.user.profile.login_key)
+        key = ensure_login_key(self.user.profile)
+        self.assertTrue(key)
+        self.user.profile.refresh_from_db()
+        self.assertEqual(self.user.profile.login_key, key)
+        self.assertEqual(ensure_login_key(self.user.profile), key)
+
+    def test_regenerate_login_key_changes_value(self):
+        first = ensure_login_key(self.user.profile)
+        second = regenerate_login_key(self.user.profile)
+        self.assertNotEqual(first, second)
+
+    def test_dashboard_visit_assigns_login_key(self):
+        self.client.login(username="ada@example.com", password="StrongPass123!")
+        self.client.get(reverse("dashboard"))
+        self.user.profile.refresh_from_db()
+        self.assertTrue(self.user.profile.login_key)
+
+    def test_valid_key_logs_user_in(self):
+        key = ensure_login_key(self.user.profile)
+        response = self.client.post(reverse("key_login"), {"login_key": key})
+        self.assertRedirects(response, reverse("dashboard"))
+
+    def test_invalid_key_does_not_log_in(self):
+        response = self.client.post(reverse("key_login"), {"login_key": "not-a-real-key"})
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.wsgi_request.user.is_authenticated)
+
+    def test_regenerated_key_invalidates_old_one(self):
+        old_key = ensure_login_key(self.user.profile)
+        regenerate_login_key(self.user.profile)
+        response = self.client.post(reverse("key_login"), {"login_key": old_key})
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.wsgi_request.user.is_authenticated)

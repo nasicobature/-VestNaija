@@ -8,7 +8,7 @@
     <label>Password{{ form.password }}</label>
     <label class="check"><input type="checkbox" name="remember"> <span>Remember me</span></label>
     <button class="btn primary wide">Login</button>
-    <a class="muted" href="#">Forgot password?</a>
+    <a class="muted" href="{% url 'key_login' %}">Login with your key instead</a>
   </form>
 </section>
 {% endblock %}

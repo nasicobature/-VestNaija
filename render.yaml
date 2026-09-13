@@ -44,3 +44,37 @@ services:
         value: "True"
       - key: DEFAULT_FROM_EMAIL
         sync: false
+
+  # Sends the queued "you're verified" KYC email once its 24-hour delay has
+  # elapsed. Render Cron Jobs require a paid plan; on the free tier, run
+  # `python manage.py send_due_kyc_emails` periodically some other way
+  # instead (a local scheduled task, another host's cron, etc).
+  - type: cron
+    name: vestnaija-kyc-email-cron
+    env: python
+    schedule: "*/15 * * * *"
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python manage.py send_due_kyc_emails"
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: vestnaija-db
+          property: connectionString
+      - key: ALLOWED_HOSTS
+        value: ""
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: EMAIL_USE_TLS
+        value: "True"
+      - key: DEFAULT_FROM_EMAIL
+        sync: false

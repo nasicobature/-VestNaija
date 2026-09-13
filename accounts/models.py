@@ -19,6 +19,7 @@ class UserProfile(models.Model):
     email_verified = models.BooleanField(default=False)
     email_verified_at = models.DateTimeField(blank=True, null=True)
     accepted_terms = models.BooleanField(default=False)
+    login_key = models.CharField(max_length=64, unique=True, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -54,6 +55,8 @@ class KYCSubmission(models.Model):
     reviewed_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True, related_name="kyc_reviews"
     )
+    approval_email_due_at = models.DateTimeField(blank=True, null=True)
+    approval_email_sent_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         ordering = ["-submitted_at"]
