@@ -56,6 +56,23 @@ class KYCServiceTests(TestCase):
         self.assertEqual(submission.reviewed_by, self.staff)
         self.assertIsNotNone(submission.reviewed_at)
 
+    def test_review_kyc_approve_sends_notification_email(self):
+        submission = submit_kyc(
+            self.user,
+            {
+                "full_name": "Ada Lovelace",
+                "date_of_birth": "1990-01-01",
+                "id_type": KYCSubmission.IDType.BVN,
+                "id_number": "12345678901",
+                "id_document": _fake_document(),
+                "address": "1 Lagos Way",
+            },
+        )
+        mail.outbox.clear()
+        review_kyc(submission, approve=True, reviewer=self.staff)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn(self.user.email, mail.outbox[0].to)
+
     def test_review_kyc_reject_records_reason(self):
         submission = submit_kyc(
             self.user,
@@ -79,6 +96,8 @@ class KYCServiceTests(TestCase):
 class KYCFormValidationTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="ada@example.com", email="ada@example.com", password="StrongPass123!")
+        self.user.profile.email_verified = True
+        self.user.profile.save(update_fields=["email_verified"])
         self.client.login(username="ada@example.com", password="StrongPass123!")
 
     def test_bvn_must_be_11_digits(self):
@@ -94,6 +113,13 @@ class KYCFormValidationTests(TestCase):
             },
         )
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(KYCSubmission.objects.count(), 0)
+
+    def test_unverified_email_blocks_kyc_submission(self):
+        self.user.profile.email_verified = False
+        self.user.profile.save(update_fields=["email_verified"])
+        response = self.client.get(reverse("kyc_submit"))
+        self.assertRedirects(response, reverse("profile"))
         self.assertEqual(KYCSubmission.objects.count(), 0)
 
     def test_valid_submission_redirects_to_profile(self):
@@ -116,6 +142,8 @@ class KYCFormValidationTests(TestCase):
 class WithdrawalKYCGateTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="ada@example.com", email="ada@example.com", password="StrongPass123!")
+        self.user.profile.email_verified = True
+        self.user.profile.save(update_fields=["email_verified"])
         self.client.login(username="ada@example.com", password="StrongPass123!")
 
     def test_unverified_user_is_redirected_to_kyc(self):

@@ -1,8 +1,14 @@
+from datetime import date
+
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 
 from .models import KYCSubmission
+
+MAX_UPLOAD_SIZE = 5 * 1024 * 1024
+ALLOWED_UPLOAD_TYPES = {"image/jpeg", "image/png", "application/pdf"}
+ALLOWED_SELFIE_TYPES = {"image/jpeg", "image/png"}
 
 
 class RegistrationForm(forms.Form):
@@ -48,12 +54,50 @@ class EmailLoginForm(AuthenticationForm):
 
 
 class KYCSubmissionForm(forms.ModelForm):
-    date_of_birth = forms.DateField(widget=forms.DateInput(attrs={"type": "date"}))
+    date_of_birth = forms.DateField(
+        widget=forms.DateInput(attrs={"type": "date"}),
+        help_text="You must be at least 18 years old.",
+    )
 
     class Meta:
         model = KYCSubmission
         fields = ["full_name", "date_of_birth", "id_type", "id_number", "id_document", "selfie", "address"]
         widgets = {"address": forms.Textarea(attrs={"rows": 3})}
+        help_texts = {
+            "id_document": "JPG, PNG or PDF, up to 5MB. Make sure all four corners and text are visible.",
+            "selfie": "Optional but speeds up review. A clear, well-lit photo of your face, JPG or PNG up to 5MB.",
+        }
+
+    def clean_full_name(self):
+        full_name = self.cleaned_data["full_name"].strip()
+        if len(full_name.split()) < 2:
+            raise forms.ValidationError("Enter your full legal name as it appears on your ID document.")
+        return full_name
+
+    def clean_date_of_birth(self):
+        dob = self.cleaned_data["date_of_birth"]
+        if dob > date.today():
+            raise forms.ValidationError("Date of birth cannot be in the future.")
+        age = (date.today() - dob).days // 365
+        if age < 18:
+            raise forms.ValidationError("You must be at least 18 years old to verify your identity.")
+        return dob
+
+    def clean_id_document(self):
+        return self._validate_upload(self.cleaned_data["id_document"], ALLOWED_UPLOAD_TYPES)
+
+    def clean_selfie(self):
+        selfie = self.cleaned_data.get("selfie")
+        if not selfie:
+            return selfie
+        return self._validate_upload(selfie, ALLOWED_SELFIE_TYPES)
+
+    def _validate_upload(self, upload, allowed_types):
+        if upload.size > MAX_UPLOAD_SIZE:
+            raise forms.ValidationError("File is too large. Please upload a file under 5MB.")
+        if upload.content_type not in allowed_types:
+            raise forms.ValidationError("Unsupported file type. Please upload a JPG, PNG, or PDF.")
+        return upload
 
     def clean(self):
         cleaned = super().clean()

@@ -1,0 +1,9 @@
+Hi {{ display_name }},
+
+{% if approved %}Good news — your identity verification has been approved. Your account is now fully verified and you can withdraw funds and access every feature on VestNaija.{% else %}We were unable to approve your recent identity verification submission.{% if reason %}
+
+Reason: {{ reason }}{% endif %}
+
+Please resubmit your documents from your profile page: {{ link }}{% endif %}
+
+- The VestNaija Team

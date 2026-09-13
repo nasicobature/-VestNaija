@@ -1,0 +1,9 @@
+Hi {{ display_name }},
+
+Thanks for creating a VestNaija account. Confirm your email address by opening the link below:
+
+{{ link }}
+
+This link expires once used and is valid for a limited time. If you did not create this account, you can safely ignore this email.
+
+- The VestNaija Team

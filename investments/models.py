@@ -7,9 +7,23 @@ class Asset(models.Model):
         IPO_DEMO = "ipo_demo", "IPO / Simulated"
         DISABLED = "disabled", "Disabled"
 
+    class Sector(models.TextChoices):
+        BANKING = "banking", "Banking"
+        TELECOM = "telecom", "Telecommunications"
+        CONSUMER_GOODS = "consumer_goods", "Consumer Goods"
+        INDUSTRIAL = "industrial", "Industrial Goods"
+        OIL_GAS = "oil_gas", "Oil & Gas"
+        INSURANCE = "insurance", "Insurance"
+        AGRICULTURE = "agriculture", "Agriculture"
+        CONGLOMERATE = "conglomerate", "Conglomerates"
+        HEALTHCARE = "healthcare", "Healthcare"
+        REAL_ESTATE = "real_estate", "Real Estate & Construction"
+        UTILITIES = "utilities", "Utilities & Power"
+
     name = models.CharField(max_length=160)
     symbol = models.CharField(max_length=24, unique=True)
     market = models.CharField(max_length=32, default="NGX")
+    sector = models.CharField(max_length=32, choices=Sector.choices, blank=True)
     description = models.TextField()
     current_price = models.DecimalField(max_digits=18, decimal_places=2)
     previous_price = models.DecimalField(max_digits=18, decimal_places=2, default=0)

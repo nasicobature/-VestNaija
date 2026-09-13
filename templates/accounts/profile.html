@@ -15,19 +15,26 @@
       <span>Date joined</span><strong>{{ user.date_joined|date:"M d, Y" }}</strong>
       <span>Email verification</span><strong>{% if user.profile.email_verified %}Verified{% else %}Not verified{% endif %}</strong>
     </div>
+
+    <div class="stepper">
+      <div class="step {% if user.profile.email_verified %}done{% else %}active{% endif %}"><span>1</span>Verify email</div>
+      <div class="step {% if user.profile.kyc_status == 'not_started' and user.profile.email_verified %}active{% elif user.profile.kyc_status != 'not_started' %}done{% endif %}"><span>2</span>Submit identity documents</div>
+      <div class="step {% if user.profile.kyc_status == 'verified' %}done{% elif user.profile.kyc_status == 'pending' %}active{% endif %}"><span>3</span>Verified &amp; ready to withdraw</div>
+    </div>
+
     {% if not user.profile.email_verified %}
-      <p class="notice">Verify your email address ({{ user.email }}) to secure your account.
+      <p class="notice notice-warning">Verify your email address ({{ user.email }}) to unlock identity verification.
         <a href="{% url 'resend_verification' %}">Resend verification email</a>
       </p>
     {% endif %}
     {% if user.profile.kyc_status == "verified" %}
-      <p class="notice">Your identity is verified.</p>
+      <p class="notice notice-success">Your identity is verified. You have full access to withdrawals and every feature.</p>
     {% elif latest_kyc.status == "pending" %}
-      <p class="notice">Your identity documents are under review.</p>
+      <p class="notice">Your identity documents are under review. This usually takes less than one business day.</p>
     {% elif latest_kyc.status == "rejected" %}
-      <p class="notice">Your last submission was rejected: {{ latest_kyc.rejection_reason }}</p>
+      <p class="notice notice-danger">Your last submission was rejected: {{ latest_kyc.rejection_reason }}</p>
       <a class="btn primary" href="{% url 'kyc_submit' %}">Resubmit identity documents</a>
-    {% else %}
+    {% elif user.profile.email_verified %}
       <p class="notice">Verify your identity before withdrawing real funds.</p>
       <a class="btn primary" href="{% url 'kyc_submit' %}">Start identity verification</a>
     {% endif %}

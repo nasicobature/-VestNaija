@@ -1,21 +1,51 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="auth-shell">
-  <form method="post" enctype="multipart/form-data" class="panel form-panel">{% csrf_token %}
-    <p class="eyebrow">Identity Verification</p><h2>Verify your identity</h2>
+<section class="auth-shell kyc-shell">
+  <div class="panel form-panel kyc-panel">
+    <p class="eyebrow">Identity Verification</p>
+    <h2>Verify your identity</h2>
+    <p class="muted">This is a one-time check required by every regulated Nigerian broker before you can withdraw funds. It takes about two minutes.</p>
+
+    <div class="stepper">
+      <div class="step done"><span>1</span>Personal details</div>
+      <div class="step done"><span>2</span>Identity document</div>
+      <div class="step done"><span>3</span>Submit for review</div>
+    </div>
+
     {% if latest and latest.status == "rejected" %}
-      <p class="notice">Your previous submission was rejected: {{ latest.rejection_reason }}. Please resubmit below.</p>
+      <p class="notice notice-danger">Your previous submission was rejected: {{ latest.rejection_reason }}. Please correct the issue and resubmit below.</p>
     {% endif %}
-    {{ form.non_field_errors }}
-    <label>Full legal name{{ form.full_name }}</label>
-    <label>Date of birth{{ form.date_of_birth }}</label>
-    <label>ID type{{ form.id_type }}</label>
-    <label>ID number (BVN/NIN/etc.){{ form.id_number }}</label>
-    <label>Upload ID document{{ form.id_document }}</label>
-    <label>Selfie photo (optional){{ form.selfie }}</label>
-    <label>Residential address{{ form.address }}</label>
-    <button class="btn primary wide">Submit for review</button>
-    <p class="muted">A staff member reviews submissions by hand. You'll see your status update on your profile once reviewed.</p>
-  </form>
+
+    <form method="post" enctype="multipart/form-data">{% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <fieldset class="kyc-section">
+        <legend>1. Personal details</legend>
+        <label>Full legal name{{ form.full_name }}{{ form.full_name.errors }}</label>
+        <label>Date of birth{{ form.date_of_birth }}<span class="hint">{{ form.date_of_birth.help_text }}</span>{{ form.date_of_birth.errors }}</label>
+        <label>Residential address{{ form.address }}{{ form.address.errors }}</label>
+      </fieldset>
+
+      <fieldset class="kyc-section">
+        <legend>2. Identification</legend>
+        <label>ID type{{ form.id_type }}{{ form.id_type.errors }}</label>
+        <label>ID number (BVN/NIN/etc.){{ form.id_number }}{{ form.id_number.errors }}</label>
+        <label>Upload ID document{{ form.id_document }}<span class="hint">{{ form.id_document.help_text }}</span>{{ form.id_document.errors }}</label>
+        <label>Selfie photo (optional){{ form.selfie }}<span class="hint">{{ form.selfie.help_text }}</span>{{ form.selfie.errors }}</label>
+      </fieldset>
+
+      <div class="kyc-tips">
+        <strong>Tips for fast approval</strong>
+        <ul>
+          <li>Use a government-issued ID that is not expired.</li>
+          <li>Photograph the document in good light with no glare on a flat surface.</li>
+          <li>Make sure your name matches the name on your VestNaija account.</li>
+        </ul>
+      </div>
+
+      <button class="btn primary wide">Submit for review</button>
+      <p class="muted">A staff member reviews submissions by hand. You'll get an email and see your status update on your profile once reviewed.</p>
+    </form>
+  </div>
 </section>
 {% endblock %}

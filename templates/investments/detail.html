@@ -3,7 +3,7 @@
 {% block content %}
 <section class="dashboard">
   <div class="page-head">
-    <div><p class="eyebrow">{{ asset.market }} / {{ asset.get_status_display }}</p><h1>{{ asset.name }}</h1></div>
+    <div><p class="eyebrow">{{ asset.market }}{% if asset.sector %} / {{ asset.get_sector_display }}{% endif %} / {{ asset.get_status_display }}</p><h1>{{ asset.name }}</h1></div>
     <div class="quick-actions">
       <a class="btn primary" href="{% url 'order_ticket' asset.symbol 'buy' %}">Buy</a>
       <a class="btn secondary" href="{% url 'order_ticket' asset.symbol 'sell' %}">Sell</a>

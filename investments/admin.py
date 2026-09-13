@@ -7,8 +7,8 @@ from .models import Asset, IPO
 
 @admin.register(Asset)
 class AssetAdmin(admin.ModelAdmin):
-    list_display = ("symbol", "name", "market", "current_price", "status", "is_enabled", "is_demo_data")
-    list_filter = ("market", "status", "is_enabled", "is_demo_data")
+    list_display = ("symbol", "name", "sector", "market", "current_price", "status", "is_enabled", "is_demo_data")
+    list_filter = ("sector", "market", "status", "is_enabled", "is_demo_data")
     search_fields = ("symbol", "name")
 
     def save_model(self, request, obj, form, change):

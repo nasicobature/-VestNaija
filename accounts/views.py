@@ -86,6 +86,9 @@ def kyc_submit(request):
     if latest and latest.status == KYCSubmission.Status.PENDING:
         messages.info(request, "Your identity documents are already under review.")
         return redirect("profile")
+    if not profile.email_verified:
+        messages.error(request, "Please verify your email address before starting identity verification.")
+        return redirect("profile")
 
     if request.method == "POST":
         form = KYCSubmissionForm(request.POST, request.FILES)

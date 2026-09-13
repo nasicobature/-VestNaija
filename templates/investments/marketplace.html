@@ -6,10 +6,20 @@
     <div><p class="eyebrow">Invest Marketplace</p><h1>Simulated equities and IPO opportunities</h1></div>
     <a class="btn secondary" href="{% url 'portfolio' %}">View portfolio</a>
   </div>
+  <form method="get" class="search-row">
+    <input type="search" name="q" value="{{ query }}" placeholder="Search by name or symbol&hellip;">
+    <button class="btn secondary" type="submit">Search</button>
+  </form>
+  <div class="filters">
+    <a href="?{% if query %}q={{ query }}&{% endif %}" class="{% if not selected_sector %}active{% endif %}">All sectors</a>
+    {% for value, label in sectors %}
+    <a href="?sector={{ value }}{% if query %}&q={{ query }}{% endif %}" class="{% if selected_sector == value %}active{% endif %}">{{ label }}</a>
+    {% endfor %}
+  </div>
   <div class="asset-grid">
     {% for asset in assets %}
     <article class="panel asset-card">
-      <div class="asset-top"><span>{{ asset.market }}</span><strong>{{ asset.symbol }}</strong></div>
+      <div class="asset-top"><span>{{ asset.market }}{% if asset.sector %} &middot; {{ asset.get_sector_display }}{% endif %}</span><strong>{{ asset.symbol }}</strong></div>
       <h2>{{ asset.name }}</h2>
       <p>{{ asset.description|truncatewords:24 }}</p>
       <div class="quote-line"><span>Current price</span><strong>{{ asset.current_price|naira }}</strong></div>
@@ -20,7 +30,7 @@
       </div>
     </article>
     {% empty %}
-    <section class="panel"><p class="empty">No assets are enabled yet. Add assets in the admin console.</p></section>
+    <section class="panel"><p class="empty">No listings match your search. Try a different sector or clear the search box.</p></section>
     {% endfor %}
   </div>
 </section>
