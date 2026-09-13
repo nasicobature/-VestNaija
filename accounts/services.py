@@ -1,9 +1,31 @@
+from django.core.mail import send_mail
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 from audit.services import log_audit
 
 from .kyc import get_kyc_provider
 from .models import KYCSubmission, UserProfile
+from .tokens import email_verification_token
+
+
+def send_verification_email(user, request):
+    uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+    token = email_verification_token.make_token(user)
+    path = reverse("verify_email", kwargs={"uidb64": uidb64, "token": token})
+    link = request.build_absolute_uri(path)
+    send_mail(
+        subject="Verify your VestNaija email address",
+        message=(
+            f"Hi {user.first_name or user.email},\n\n"
+            f"Confirm your email address by opening this link:\n{link}\n\n"
+            "If you did not create this account, you can ignore this email."
+        ),
+        from_email=None,
+        recipient_list=[user.email],
+    )
 
 
 def submit_kyc(user, cleaned_data):

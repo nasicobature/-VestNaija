@@ -1,8 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import redirect, render
+from django.utils import timezone
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
 
 from investments.models import Asset
 from portfolio.services import portfolio_summary
@@ -10,7 +14,8 @@ from wallet.services import get_or_create_wallet
 
 from .forms import EmailLoginForm, KYCSubmissionForm, RegistrationForm
 from .models import KYCSubmission, UserProfile
-from .services import submit_kyc
+from .services import send_verification_email, submit_kyc
+from .tokens import email_verification_token
 
 
 def landing(request):
@@ -25,7 +30,8 @@ def register(request):
             user = form.save()
             get_or_create_wallet(user)
             login(request, user)
-            messages.success(request, "Welcome to VestNaija.")
+            send_verification_email(user, request)
+            messages.success(request, "Welcome to VestNaija. Check your email to verify your address.")
             return redirect("dashboard")
     else:
         form = RegistrationForm()
@@ -90,3 +96,31 @@ def kyc_submit(request):
     else:
         form = KYCSubmissionForm()
     return render(request, "accounts/kyc_submit.html", {"form": form, "latest": latest})
+
+
+def verify_email(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and email_verification_token.check_token(user, token):
+        if not user.profile.email_verified:
+            user.profile.email_verified = True
+            user.profile.email_verified_at = timezone.now()
+            user.profile.save(update_fields=["email_verified", "email_verified_at"])
+        messages.success(request, "Your email address is verified.")
+    else:
+        messages.error(request, "That verification link is invalid or has expired.")
+    return redirect("profile" if request.user.is_authenticated else "login")
+
+
+@login_required
+def resend_verification(request):
+    if request.user.profile.email_verified:
+        messages.info(request, "Your email is already verified.")
+    else:
+        send_verification_email(request.user, request)
+        messages.success(request, "Verification email sent. Check your inbox.")
+    return redirect("profile")

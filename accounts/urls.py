@@ -10,4 +10,6 @@ urlpatterns = [
     path("dashboard/", views.dashboard, name="dashboard"),
     path("profile/", views.profile, name="profile"),
     path("profile/kyc/", views.kyc_submit, name="kyc_submit"),
+    path("verify-email/<uidb64>/<token>/", views.verify_email, name="verify_email"),
+    path("profile/resend-verification/", views.resend_verification, name="resend_verification"),
 ]

@@ -1,10 +1,14 @@
 from django.contrib.auth.models import User
+from django.core import mail
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 from .models import KYCSubmission, UserProfile
-from .services import review_kyc, submit_kyc
+from .services import review_kyc, send_verification_email, submit_kyc
+from .tokens import email_verification_token
 
 
 def _fake_document():
@@ -123,3 +127,64 @@ class WithdrawalKYCGateTests(TestCase):
         self.user.profile.save(update_fields=["kyc_status"])
         response = self.client.get(reverse("withdraw"))
         self.assertEqual(response.status_code, 200)
+
+
+class EmailVerificationTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="ada@example.com", email="ada@example.com", password="StrongPass123!")
+
+    def test_registration_sends_verification_email(self):
+        response = self.client.post(
+            reverse("register"),
+            {
+                "full_name": "New User",
+                "email": "newuser@example.com",
+                "phone": "+2348012345678",
+                "password": "StrongPass123!",
+                "confirm_password": "StrongPass123!",
+                "accepted_terms": "on",
+            },
+        )
+        self.assertRedirects(response, reverse("dashboard"))
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("newuser@example.com", mail.outbox[0].to)
+        self.assertIn("/verify-email/", mail.outbox[0].body)
+
+    def test_valid_token_marks_email_verified(self):
+        uidb64 = urlsafe_base64_encode(force_bytes(self.user.pk))
+        token = email_verification_token.make_token(self.user)
+        response = self.client.get(reverse("verify_email", kwargs={"uidb64": uidb64, "token": token}))
+        self.assertRedirects(response, reverse("login"))
+        self.user.profile.refresh_from_db()
+        self.assertTrue(self.user.profile.email_verified)
+        self.assertIsNotNone(self.user.profile.email_verified_at)
+
+    def test_invalid_token_does_not_verify(self):
+        uidb64 = urlsafe_base64_encode(force_bytes(self.user.pk))
+        response = self.client.get(reverse("verify_email", kwargs={"uidb64": uidb64, "token": "bogus-token"}))
+        self.assertEqual(response.status_code, 302)
+        self.user.profile.refresh_from_db()
+        self.assertFalse(self.user.profile.email_verified)
+
+    def test_token_is_single_use_for_re_verification_state(self):
+        # A token generated before verification should not verify again
+        # once the profile's verified state has already changed via a
+        # different token, since the hash incorporates email_verified.
+        uidb64 = urlsafe_base64_encode(force_bytes(self.user.pk))
+        token = email_verification_token.make_token(self.user)
+        self.user.profile.email_verified = True
+        self.user.profile.save(update_fields=["email_verified"])
+        self.assertFalse(email_verification_token.check_token(self.user, token))
+
+    def test_resend_when_unverified_sends_email(self):
+        self.client.login(username="ada@example.com", password="StrongPass123!")
+        response = self.client.get(reverse("resend_verification"))
+        self.assertRedirects(response, reverse("profile"))
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_resend_when_already_verified_sends_nothing(self):
+        self.user.profile.email_verified = True
+        self.user.profile.save(update_fields=["email_verified"])
+        self.client.login(username="ada@example.com", password="StrongPass123!")
+        self.client.get(reverse("resend_verification"))
+        self.assertEqual(len(mail.outbox), 0)

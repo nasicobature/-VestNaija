@@ -13,8 +13,13 @@
     <div class="status-grid">
       <span>KYC status</span><strong>{{ user.profile.get_kyc_status_display }}</strong>
       <span>Date joined</span><strong>{{ user.date_joined|date:"M d, Y" }}</strong>
-      <span>Email verification</span><strong>Placeholder</strong>
+      <span>Email verification</span><strong>{% if user.profile.email_verified %}Verified{% else %}Not verified{% endif %}</strong>
     </div>
+    {% if not user.profile.email_verified %}
+      <p class="notice">Verify your email address ({{ user.email }}) to secure your account.
+        <a href="{% url 'resend_verification' %}">Resend verification email</a>
+      </p>
+    {% endif %}
     {% if user.profile.kyc_status == "verified" %}
       <p class="notice">Your identity is verified.</p>
     {% elif latest_kyc.status == "pending" %}

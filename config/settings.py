@@ -201,6 +201,22 @@ if not DEBUG:
 DEFAULT_BROKER_FEE_RATE = "0.005"
 PAYMENT_PROVIDER = os.getenv("PAYMENT_PROVIDER", "mock")
 KYC_PROVIDER = os.getenv("KYC_PROVIDER", "manual")
+
+# No email provider is hardcoded: any SMTP account (Gmail, SendGrid,
+# Mailgun, Resend, SES, ...) works once EMAIL_HOST is set in .env. Until
+# then, emails are printed to the console instead of sent.
+_default_email_backend = (
+    "django.core.mail.backends.smtp.EmailBackend"
+    if os.getenv("EMAIL_HOST")
+    else "django.core.mail.backends.console.EmailBackend"
+)
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", _default_email_backend)
+EMAIL_HOST = os.getenv("EMAIL_HOST", "")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True").lower() == "true"
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "VestNaija <no-reply@vestnaija.example>")
 FLW_PUBLIC_KEY = os.getenv("FLW_PUBLIC_KEY", "")
 FLW_SECRET_KEY = os.getenv("FLW_SECRET_KEY", "")
 FLW_ENCRYPTION_KEY = os.getenv("FLW_ENCRYPTION_KEY", "")
