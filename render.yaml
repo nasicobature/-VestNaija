@@ -1,0 +1,34 @@
+databases:
+  - name: vestnaija-db
+    databaseName: vestnaija
+    user: vestnaija
+
+services:
+  - type: web
+    name: vestnaija
+    env: python
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate"
+    startCommand: "gunicorn config.wsgi:application"
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: vestnaija-db
+          property: connectionString
+      - key: ALLOWED_HOSTS
+        value: ""
+      - key: PAYMENT_PROVIDER
+        value: "flutterwave"
+      - key: FLW_PUBLIC_KEY
+        sync: false
+      - key: FLW_SECRET_KEY
+        sync: false
+      - key: FLW_ENCRYPTION_KEY
+        sync: false
+      - key: FLW_SECRET_HASH
+        sync: false
+      - key: FLW_BASE_URL
+        value: "https://api.flutterwave.com/v3"
