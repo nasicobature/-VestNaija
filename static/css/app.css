@@ -96,6 +96,7 @@ form ul.errorlist { color: var(--danger); font-size: 12px; margin: 4px 0 0; padd
 .tag { display: inline-flex; align-items: center; justify-self: start; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
 .tag-ipo { background: rgba(201, 154, 46, .15); color: var(--gold); }
 .tag-not-listed { background: rgba(183, 56, 56, .12); color: var(--danger); }
+.tag-days-left { background: rgba(15, 107, 79, .12); color: var(--brand); margin-left: 6px; }
 .positive-text, .positive strong { color: var(--brand); }
 .negative-text { color: var(--danger); }
 .quote-card { display: grid; gap: 6px; padding: 16px; background: #edf5ef; border-radius: 8px; }

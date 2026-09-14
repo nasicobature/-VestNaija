@@ -36,7 +36,7 @@
         {% if asset.status == "not_listed" %}
         <strong>Not yet listed &mdash; no subscription window open</strong>
         {% else %}
-        <strong>{{ asset.ipo.opens_at|date:"M d, Y"|default:"TBA" }} - {{ asset.ipo.closes_at|date:"M d, Y"|default:"TBA" }}</strong>
+        <strong>{{ asset.ipo.opens_at|date:"M d, Y"|default:"TBA" }} - {{ asset.ipo.closes_at|date:"M d, Y"|default:"TBA" }}{% if asset.ipo.days_left is not None %} ({{ asset.ipo.days_left }} day{{ asset.ipo.days_left|pluralize }} left){% endif %}</strong>
         {% endif %}
         <span>Status</span><strong>{{ asset.ipo.status }}</strong>
       </div>

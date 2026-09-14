@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class Asset(models.Model):
@@ -60,6 +61,13 @@ class IPO(models.Model):
     @property
     def minimum_investment(self):
         return self.offer_price * self.minimum_subscription
+
+    @property
+    def days_left(self):
+        if not self.closes_at:
+            return None
+        remaining = (self.closes_at - timezone.now().date()).days
+        return max(remaining, 0)
 
     def __str__(self):
         return f"{self.asset.symbol} IPO"
