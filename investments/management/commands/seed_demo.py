@@ -410,7 +410,7 @@ class Command(BaseCommand):
                     "minimum_subscription": 10,
                     "opens_at": None,
                     "closes_at": None,
-                    "status": "Not Listed - awaiting NGX listing approval",
+                    "status": "Not Listed on NGX",
                 },
             },
             {
